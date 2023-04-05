@@ -23,7 +23,7 @@ const {
 
 const MR_DBUS_IFACE = `
 <node>
-   <interface name="org.gnome.Shell.Extensions.Windows">
+   <interface name="org.gnome.Shell.Extensions.AutoKey">
       <method name="List">
          <arg type="s" direction="out" name="win" />
       </method>
@@ -74,6 +74,10 @@ const MR_DBUS_IFACE = `
       <method name="Close">
          <arg type="u" direction="in" name="winid" />
       </method>
+      <method name="GetMouseLocation">
+            <arg type="i" direction="out" name="x" />
+            <arg type="i" direction="out" name="y" />
+      </method>
    </interface>
 </node>`;
 
@@ -81,7 +85,7 @@ const MR_DBUS_IFACE = `
 class Extension {
     enable() {
         this._dbus = Gio.DBusExportedObject.wrapJSObject(MR_DBUS_IFACE, this);
-        this._dbus.export(Gio.DBus.session, '/org/gnome/Shell/Extensions/Windows');
+        this._dbus.export(Gio.DBus.session, '/org/gnome/Shell/Extensions/AutoKey');
     }
 
     disable() {
@@ -105,6 +109,9 @@ class Extension {
             winJsonArr.push({
                 wm_class: w.meta_window.get_wm_class(),
                 wm_class_instance: w.meta_window.get_wm_class_instance(),
+                wm_title: w.meta_window.get_title(),
+                workspace: w.meta_window.get_workspace().index(),
+                desktop: w.meta_window.get_monitor(),
                 pid: w.meta_window.get_pid(),
                 id: w.meta_window.get_id(),
                 frame_type: w.meta_window.get_frame_type(),
@@ -270,6 +277,12 @@ class Extension {
             throw new Error('Not found');
         }
     }
+
+    GetMouseLocation() {
+        let [x,y,mask] = global.get_pointer()
+        return [x,y]
+    }
+
 }
 
 function init() {
