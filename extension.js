@@ -18,7 +18,7 @@
 
 /* exported init */
 const {
-    Gio
+    Gio,
 } = imports.gi;
 
 const MR_DBUS_IFACE = `
@@ -78,6 +78,13 @@ const MR_DBUS_IFACE = `
             <arg type="i" direction="out" name="x" />
             <arg type="i" direction="out" name="y" />
       </method>
+      <method name="ScreenSize">
+            <arg type="i" direction="out" name="width" />
+            <arg type="i" direction="out" name="height" />
+      </method>
+      <method name="CheckVersion">
+            <arg type="s" direction="out" name="version" />
+      </method>
    </interface>
 </node>`;
 
@@ -121,9 +128,9 @@ class Extension {
                 x: w.get_x(),
                 y: w.get_y(),
                 focus: w.meta_window.has_focus(),
-                in_current_workspace: w.meta_window.located_on_workspace(workspaceManager.get_active_workspace())
+                in_current_workspace: w.meta_window.located_on_workspace(workspaceManager.get_active_workspace()),
             });
-        })
+        });
         return JSON.stringify(winJsonArr);
     }
 
@@ -160,7 +167,7 @@ class Extension {
                 role: w.meta_window.get_role(),
                 area: w.meta_window.get_work_area_current_monitor(),
                 area_all: w.meta_window.get_work_area_all_monitors(),
-                area_cust: w.meta_window.get_work_area_for_monitor(currentmonitor)
+                area_cust: w.meta_window.get_work_area_for_monitor(currentmonitor),
             });
         } else {
             throw new Error('Not found');
@@ -169,29 +176,27 @@ class Extension {
 
     GetTitle(winid) {
         let w = this._get_window_by_wid(winid);
-        if (w) {
+        if (w)
             return w.meta_window.get_title();
-        } else {
+        else
             throw new Error('Not found');
-        }
     }
 
     MoveToWorkspace(winid, workspaceNum) {
         let win = this._get_window_by_wid(winid).meta_window;
-        if (win) {
+        if (win)
             win.change_workspace_by_index(workspaceNum, false);
-        } else {
+        else
             throw new Error('Not found');
-        }
     }
 
     MoveResize(winid, x, y, width, height) {
         let win = this._get_window_by_wid(winid);
 
         if (win) {
-            if (win.meta_window.maximized_horizontally || win.meta_window.maximized_vertically) {
+            if (win.meta_window.maximized_horizontally || win.meta_window.maximized_vertically)
                 win.meta_window.unmaximize(3);
-            }
+
 
             win.meta_window.move_resize_frame(1, x, y, width, height);
         } else {
@@ -202,10 +207,10 @@ class Extension {
     Resize(winid, width, height) {
         let win = this._get_window_by_wid(winid);
         if (win) {
-            if (win.meta_window.maximized_horizontally || win.meta_window.maximized_vertically) {
+            if (win.meta_window.maximized_horizontally || win.meta_window.maximized_vertically)
                 win.meta_window.unmaximize(3);
-            }
-            win.meta_window.move_resize_frame(1, win.get_x(), win.get_y(), width, height);
+
+            win.meta_window.move_xCoordresize_frame(1, win.get_x(), win.get_y(), width, height);
         } else {
             throw new Error('Not found');
         }
@@ -214,9 +219,9 @@ class Extension {
     Move(winid, x, y) {
         let win = this._get_window_by_wid(winid);
         if (win) {
-            if (win.meta_window.maximized_horizontally || win.meta_window.maximized_vertically) {
+            if (win.meta_window.maximized_horizontally || win.meta_window.maximized_vertically)
                 win.meta_window.unmaximize(3);
-            }
+
             win.meta_window.move_frame(1, x, y);
         } else {
             throw new Error('Not found');
@@ -225,66 +230,73 @@ class Extension {
 
     Maximize(winid) {
         let win = this._get_window_by_wid(winid).meta_window;
-        if (win) {
+        if (win)
             win.maximize(3);
-        } else {
+        else
             throw new Error('Not found');
-        }
     }
 
     Minimize(winid) {
         let win = this._get_window_by_wid(winid).meta_window;
-        if (win) {
+        if (win)
             win.minimize();
-        } else {
+        else
             throw new Error('Not found');
-        }
     }
 
     Unmaximize(winid) {
         let win = this._get_window_by_wid(winid).meta_window;
-        if (win) {
+        if (win)
             win.unmaximize(3);
-        } else {
+        else
             throw new Error('Not found');
-        }
     }
 
     Unminimize(winid) {
         let win = this._get_window_by_wid(winid).meta_window;
-        if (win) {
+        if (win)
             win.unminimize();
-        } else {
+        else
             throw new Error('Not found');
-        }
     }
 
     Activate(winid) {
         let win = this._get_window_by_wid(winid).meta_window;
-        if (win) {
+        if (win)
             win.activate(0);
-        } else {
+        else
             throw new Error('Not found');
-        }
     }
 
     Close(winid) {
         let win = this._get_window_by_wid(winid).meta_window;
-        if (win) {
+        if (win)
             win.kill();
             // win.delete(Math.floor(Date.now() / 1000));
-        } else {
+        else
             throw new Error('Not found');
-        }
     }
 
     GetMouseLocation() {
-        let [x,y,mask] = global.get_pointer()
-        return [x,y]
+        let [x, y, mask] = global.get_pointer();
+        return [x, y];
     }
 
+    ScreenSize() {
+        let x = global.screen_width;
+        let y = global.screen_height;
+        return [x, y];
+    }
+
+    CheckVersion() {
+        return '0.1';
+    }
 }
 
+/**
+ *
+ */
 function init() {
+    // called by gnome shell when extension is loaded
     return new Extension();
 }
