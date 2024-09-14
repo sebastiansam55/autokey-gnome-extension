@@ -4,7 +4,8 @@
   "uuid": "autokey-extension@sebastiansam55",
   "shell-version": [
     "45",
-    "46"
+    "46",
+    "47"
   ],
   "version": 0.1,
   "url": "https://github.com/sebastiansam55/autokey-gnome-extension"

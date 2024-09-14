@@ -1,10 +1,11 @@
-version=`cat metadata.json | grep version | tail --lines=1 | awk -e '{print $$2}' | tr -d ',' `
+version=`gnome-shell --version`
 
 
 all: publish
 
-publish: extension.js metadata.json
-	zip "autokey-gnome-extension-sebastiansam55.v$(version).shell-extension.zip" extension.js metadata.json
+publish:
+	zip "autokey-gnome-extension@sebastiansam55.44.shell-extension.zip" 44/extension.js 44/metadata.json
+	zip "autokey-gnome-extension@sebastiansam55.shell-extension.zip" 46/extension.js 46/metadata.json
 
 version:
 	echo $(version)
